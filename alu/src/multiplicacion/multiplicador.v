@@ -40,7 +40,7 @@ assign z=(B==0)?1:0;
 
 
 //bloques de registros de desplazamiento para A y B
-always @(posedge clk) begin
+always @(negedge clk) begin
    
 	if (rst) begin
 		A = {3'b000,MD};
@@ -56,7 +56,7 @@ always @(posedge clk) begin
 end 
 
 //bloque de add pp
-always @(posedge clk) begin
+always @(negedge clk) begin
    
 	if (rst) begin
 		pp =0;
