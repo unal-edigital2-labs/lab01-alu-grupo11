@@ -5,7 +5,7 @@
 * David Ariza
 * Juan Rubiano 
 * Julian Villalobos
-* Ronneth Briceño
+* Ronneth Adrian Briceño Vargas
 
 ## Introducción
 
