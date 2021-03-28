@@ -2,10 +2,10 @@
 
 # integrantes
 
-*David Ariza
-*Juan Rubiano 
-*Julian Villalobos
-*Ronneth Briceño
+* David Ariza
+* Juan Rubiano 
+* Julian Villalobos
+* Ronneth Briceño
 
 ## Introducción
 
