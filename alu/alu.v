@@ -52,9 +52,9 @@ end
 always @(*) begin
 	case(opcode) 
 		2'b00: int_bcd <={8'b00,sal_suma};
-		2'b01: int_bcd <={8'b01,sal_resta};
-		2'b10: int_bcd <={8'b10,sal_mult};
-		2'b11: int_bcd <={8'b11,sal_div};
+		2'b01: int_bcd <={8'b00,sal_resta};
+		2'b10: int_bcd <={8'b00,sal_mult};
+		2'b11: int_bcd <={8'b00,sal_div};
 	default:
 		int_bcd <= 0;
 	endcase
@@ -64,9 +64,11 @@ end
 
 //instanciaci�n de los componnetes 
 
-sum4b sum(. init(init_suma),.xi({1'b0,portA}), .yi({1'b0,portB}),.sal(sal_suma));
+sum4b sum(.init(init_suma),.xi({1'b0,portA}), .yi({1'b0,portB}),.sal(sal_suma));
+resta res(.init(init_resta), .xi(portA), .yi(portB), .sal(sal_resta));
 multiplicador mul ( .MR(portA), .MD(portB), .init(init_mult),.clk(clk), .pp(sal_mult));
 dp dp( .sw(int_bcd), .clk(clk), .sseg(sseg), .an(an));
+
 
 // adicone los dos bloques que hacen flata la resta y divisi�n
 

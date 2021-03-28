@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-
 module sum4b(init, xi, yi,co,sal);
 
   input init;
@@ -11,7 +10,7 @@ module sum4b(init, xi, yi,co,sal);
   
   wire [4:0] st;
   assign sal= st[3:0];
-  assign Cout = st[4];
+  assign co = st[4];
 
   assign st  = 	xi+yi;
 
