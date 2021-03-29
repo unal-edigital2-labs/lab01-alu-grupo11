@@ -19,11 +19,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module multiplicador( input [2:0] MR, 
-							 input [2:0] MD, 
-							input init, 
-							 input clk,  
-							 output reg [5:0] pp, 
-							 output reg done
+input [2:0] MD, 
+input init, 
+input clk,  
+output reg [5:0] pp, 
+output reg done
     );
 
 reg sh;

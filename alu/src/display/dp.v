@@ -23,7 +23,7 @@
 module dp(clk, sw, sseg, an);
 
 input clk;
-input [5:0] sw;
+input [15:0] sw;
 output [6:0] sseg;
 output reg[7:0] an;
 reg [1:0] cont;

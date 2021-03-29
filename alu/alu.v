@@ -12,9 +12,9 @@ module alu(
  );
 
 // Declaraci�n de salidas de cada bloque 
-wire [3:0] sal_suma;
-wire [3:0] sal_resta;
-wire [3:0] sal_div;
+wire [5:0] sal_suma;
+wire [5:0] sal_resta;
+wire [5:0] sal_div;
 wire [5:0] sal_mult;
 
 
@@ -67,6 +67,7 @@ end
 sum4b sum(.init(init_suma),.xi({1'b0,portA}), .yi({1'b0,portB}),.sal(sal_suma));
 resta res(.init(init_resta), .xi(portA), .yi(portB), .sal(sal_resta));
 multiplicador mul ( .MR(portA), .MD(portB), .init(init_mult),.clk(clk), .pp(sal_mult));
+divisor div(.DV(portA), .DR(portB), .init(init_div), .clk(clk), .pp(sal_div));
 dp dp( .sw(int_bcd), .clk(clk), .sseg(sseg), .an(an));
 
 
