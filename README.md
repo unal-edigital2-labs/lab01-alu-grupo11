@@ -1,64 +1,159 @@
 # lab05 : Unidad de suma, resta, multiplicación, división y visualización BCD
 
-# integrantes
+## Integrantes 
 
-* David Ariza
-* Juan Rubiano 
-* Julian Villalobos
-* Ronneth Adrian Briceño Vargas
+- David Ariza
+
+- Juan Rubiano
+
+- Julian Villalobos
+
+- Ronneth Briceño
+
 
 ## Introducción
 
-Para este paquete de trabajo, deben estar inscrito en un grupo y clonar la información del siguiente link [WP05](https://classroom.github.com/g/dHrBou9a). Una vez aceptado el repositorio debe descargarlo en su computador, para ello debe clonar el mismo. Si no sabe cómo hacerlo revise la metodología de trabajo, donde se explica el proceso
+En el presente laboratorio se abordan la sección inicial para realizar proyectos en la materia Digital II, especificamente para comprender el funcionamiento de la FPGA facilitada por la universidad. En este caso el trabajo consiste en implementar una unidad logica aritmetica (ALU) con funciones de suma, resta, multiplicación y división, además de la visualización de los resultados en los displays 7-segmentos presentes en la fpga.
 
-Las documentación deben estar diligencia en el archivo README.md del repositorio clonado.
-
-Una vez clone el repositorio, realice lo siguiente:
+Cabe destacar que en este archivo README se hace la documentación de trabajo realizado, es decir, de las modificaciones al multiplicador, del restador, divisor y la respectiva implementación en la ALU, además de la visualización en la FPGA fisica.
 
 
-## descipción 
-La unidad aritmética, es tal que cuenta con componentes para realizar operaciones aritméticas. cada operación aritmética es ejecutada acuerdo al código de la operación. 
+## Descripción modulos
+### MULTIPLICADOR
+Para realizar el multiplicador se hizo uso del archivo ya existente proporcionado por el docente. Se hicieron algunos cambios debido a que al momento de implementar en la tarjeta se presentaban fallos, tales como una respuesta errónea a la salida, se presentaba la repuesta un LED a la izquierda. Para corregir esto se hizo un cambio en la sección del datapath, cambiando el momento de ejecutarse de posedge a negedge, ya que si se ejectuaba al tiempo con la máquina de estados, se presentaba una superposición que generaba el fallo mencionado. Este cambio igualmente se pudo haber realizado en la máquina de estados, el único fin es lograr que cada sección se ejecute en un flanco diferente.
 
-Como ejercicio académico, se propone construye una unidad con 4 operaciones aritméticas: suma, resta, multiplicación y división.  de igual manera, el resultados se visualiza en los display de siete segmentos. El flujo de datos y la selección de la operación se realiza acorde a la señal opcode, y segun la siguiente tabla:
-
-
-opcode | operación  enteros positivos
-00| suma
-01| resta 
-10|  multiplicación
-11| división 
-
-Por lo tanto, la unidad debe contar con:
-
-1. Los dos puertos de entrada A y B. cada uno de  3 bits.
-2. La señal `opcode` de dos bits, para configurar la operación que se realiza con los datos de `portA` y `portB`.
-3. La a visualización de unidad debe tener las salidas de los 4 ánodos, `An`  y las 7 señales de los cátodos, `sseg`.
-4. Para las FSM  y las visualización dinámica, se debe incluir la señal de `clk` de entrada.
-5. la señal de reset del sistema
-
-## Diagrama de caja negra
-
-Según las especificaciones anteriormente descrita, la caja funcional de la unidad aritmética propuesta es:
-
-![caja negra](https://github.com/Fabeltranm/SPARTAN6-ATMEGA-MAX5864/blob/master/lab/lab06_Unidad_aritmetica/doc/cajanegra.png)
+``` verilog
+always @(negedge clk) begin 
+  if (rst) begin 
+    A = {3'b000,MD};
+    B = MR;
+  end 
+  else begin 
+    if (sh) begin
+     A = A << 1;
+     B = B >> 1;
+    end
+  end
+end
+```
 
 
-## Diagrama estructural
+### DIVISOR
+Para el modulo divisor se crearon cuatro variables de entrada ```clk, init, DR, DV``` y una de salida `pp`, tambien se crean los diferentes registros que hacen posible los corriemientos y las operaciones necesarias para su funcionamiento, Luego de definir las variables se describe una maquina de estados finitos (FSM) la cual sigue los pasos realizados en clase segun explicacion del profesor. La descripcion completa de este hardware se encuentra [aqui](https://github.com/unal-edigital2/lab01-alu-grupo11/tree/master/alu/src/divisor).
 
-![estructural](https://github.com/Fabeltranm/SPARTAN6-ATMEGA-MAX5864/blob/master/lab/lab06_Unidad_aritmetica/doc/diagraEstructural.png)
 
-El diagrama estructural, se soporta en los componentes desarrollados en los anteriores laboratorios. De esta manera,  tanto el sumador, el multiplicador  y el Display, son tomados de los lab2, lab5 y lab4  respectivamente. Adicional a la estructura de cada operación se encuentra el decodificador  y el multiplexador.
+``` verilog
+module divisor(clk, init, DR, DV, pp);              
 
-## Entregables
+input clk; 
+input init; 
+input [2:0] DR;
+input [2:0] DV; 
+output reg [5:0] pp;
 
-1. Definir el diagrama estructurar interno de cada bloque funcionar 
-2. Descargar la estructura propuesta de la  Unidad Aritmética del paquete de trabajo [WP05](https://classroom.github.com/g/dHrBou9a) Este proyecto cuenta con el archivo `alu.v` y, tiene la carpeta `src` que cuenta con las 5 carpetas de cada componente.
-3. Implementar `alu.v` en la FPGA, y  comprobar el funcionamiento  de la suma la multiplicación y la visualización
-4. Incluir el  HDL para le divisor  realizado en el ejercicio anterior, en la carpeta `src/divisor`  y, adicione los archivos e instanciar el bloque divisor.
-5. Diseñar el bloque restador, adicionar dicho bloque a la respectiva carpeta e instanciar el modulo en `alu.v`.
-6. Realizar el testbench del bloque alu.
-7. implementar el sistema completo en la FPGA remota
-8. hacer la documentación respectiva en el archivo README
+reg done;
+reg sh;
+reg rst;
+reg add;
+reg llenar;
+reg asg;
+reg [5:0] C;
+reg [2:0] B;
+
+reg [1:0] count;
+
+wire z;
+
+reg [2:0] status = 0;
+```
+### RESTADOR
+El modulo restador se realizo de igual forma, creando las variables de entrada y de salida, para este caso se solicito que la entrada `xi` sea mayor que la entrada `yi`, luego se crea un registro llamado `yi_comp` el cual es el complemento y se le suma uno para hacerlo en complemento a dos, entonces gracias a la instruccion always cuando hay un cambio en las variables de entrada `xi` y el complemento a dos de `yi` se suman dando el resultado de la resta.
+
+``` verilog
+module resta(init, xi, yi, sal);
+
+  input init;
+  input [2:0] xi;
+  input [2:0] yi;
+  output [5:0] sal;
   
+  reg [2:0] resultado;
+  wire [2:0] yi_comp;
+  
+  assign yi_comp = ~yi+1;
+  assign sal = {3'b000,resultado};
+  
+always @(*) begin
+    if(xi >= yi )begin
+        if(init) resultado = xi+yi_comp;
+        else resultado=0;
+    end
+    else resultado = 0;
+end
+endmodule
+```
 
+
+## ALU
+Para la implementación de la ALU se empezó por crear las variables necesarias, iniciando por las entradas requeridas ```port A```y ```port B```, después se debe elegir la operación a realizar, para esto se tiene la variable ```opcode```. Finalmente se agrega las variables de visualización ```sseg``` y ```an``` que nos ayudarán a ver el resultado en el 7 segmentos, el cual será controlado por la señal de reloj la cual se debe agregar ```clk```. 
+
+``` verilog
+module alu(
+    input [2:0] portA,
+    input [2:0] portB,
+    input [1:0] opcode,
+    output [0:6] sseg,
+    output [4:0] an,
+    input clk,
+    input rst
+ );
+
+```
+
+Luego de tener definidas las variables, se deben declarar las salidas de los bloques con sus señales de inicio, para poder obtener la respuesta de que operación se quiere llevar a cabo por medio del decodificador. Esto se hará con el siguiente código que muestra que init se activa con cada selección del case.
+
+``` verilog
+always @(*) begin
+	case(opcode) 
+		2'b00: init<=1;
+		2'b01: init<=2;
+		2'b10: init<=4;
+		2'b11: init<=8;
+	default:
+		init <= 0;
+	endcase
+	
+end
+
+```
+
+Después de esto se pasa a la etapa del mutiplexor, donde se elegirá la señal de salida que se observará en e display, dependiendo del valor escogido en ```opecode```. 
+
+``` verilog
+always @(*) begin
+	case(opcode) 
+		2'b00: int_bcd <={8'b00,sal_suma};
+		2'b01: int_bcd <={8'b00,sal_resta};
+		2'b10: int_bcd <={8'b00,sal_mult};
+		2'b11: int_bcd <={8'b00,sal_div};
+	default:
+		int_bcd <= 0;
+	endcase
+	
+end
+
+
+```  
+
+Luego de establecer todas las variables en la ALU, se deben referenciar los bloques de cada operación con el decodificador y el multiplexor, asignandole las entradas correspondientes.A
+
+```verilog
+sum4b sum( .init(init_suma),.xi({1'b0,portA}), .yi({1'b0,portB}),.sal(sal_suma));
+restador res( .init(init_resta), .xi(portA), .yi(portB), .neg(sal_resta[4]), .sal(sal_resta[3:0]));
+multiplicador mul ( .MR(portA), .MD(portB), .init(init_mult),.clk(clk), .pp(sal_mult));
+BCDtoSSeg dp( .BCD(int_bcd), .SSeg(sseg));
+
+
+
+```
  
