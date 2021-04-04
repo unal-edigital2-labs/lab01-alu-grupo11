@@ -20,10 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module divisor(clk, init, DR, DV, pp);              
+module divisor(clk, init, DR, DV, pp, reset);              
 
 input clk; 
-input init; 
+input init;
+input reset; 
 input [2:0] DR;
 input [2:0] DV; 
 output reg [5:0] pp;
@@ -107,7 +108,7 @@ always @(posedge clk) begin
 		add=0;
 		llenar=0;
 		asg=0;
-		if (init) begin
+		if (init || reset) begin
 			status=SHIFT;
 			done =0;
 			rst=1;

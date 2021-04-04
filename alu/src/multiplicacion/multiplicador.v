@@ -21,6 +21,7 @@
 module multiplicador( input [2:0] MR, 
 input [2:0] MD, 
 input init, 
+input reset,
 input clk,  
 output reg [5:0] pp, 
 output reg done
@@ -77,7 +78,7 @@ always @(posedge clk) begin
 	START: begin
 		sh=0;
 		add=0;
-		if (init) begin
+		if (init || reset) begin
 			status=CHECK;
 			done =0;
 			rst=1;
